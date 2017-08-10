@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var todos = require('./routes/todos');
 
 // inicia o express
 var app = express();
@@ -16,8 +17,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Definição dos arquivos de rotas
 app.use('/', index);
 app.use('/users', users);
+app.use('/todos', todos);
 
 // Captura os erros 404
 app.use(function(req, res, next) {
