@@ -1,8 +1,45 @@
 var express = require("express");
 var todos = express.Router();
 
-var todoIndex = 0;
-var todosList = [];
+var todoIndex = 6;
+var todosList = [
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 0,
+        "completed": false
+    },
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 1,
+        "completed": false
+    },
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 2,
+        "completed": false
+    },
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 3,
+        "completed": false
+    },
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 4,
+        "completed": false
+    },
+    {
+        "title": "Tarefas de teste",
+        "description": "Descrição da tarefa",
+        "id": 5,
+        "completed": false
+    }
+];
 
 todos.get('/', function (req, res, next) {
     // retorna todas as Todos cadastradas
