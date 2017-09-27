@@ -30,7 +30,7 @@ describe('App', function () {
                     expect(response.body).to.have.property('description');
                     expect(response.body).to.have.property('completed');
                     done();
-                });
+                }).catch(done);
         });
 
         it('DELETE /todo/:id', function(done) {
