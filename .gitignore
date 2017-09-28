@@ -1,1 +1,3 @@
 node_modules/
+banco.sqlite
+package-lock.json

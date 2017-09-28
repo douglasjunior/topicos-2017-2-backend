@@ -12,7 +12,9 @@
     "cors": "^2.8.4",
     "debug": "~2.6.3",
     "express": "~4.15.2",
-    "morgan": "~1.8.1"
+    "morgan": "~1.8.1",
+    "sequelize": "^4.11.1",
+    "sqlite3": "3.1.9"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
