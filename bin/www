@@ -4,29 +4,30 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('todolist-backend:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('todolist-backend:server');
+const http = require('http');
 const models = require('../models');
+const sequelize = models.sequelize;
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3001');
+const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-const cleanDatabase = true; // reseta o banco
-models.sequelize.sync({ force: cleanDatabase })
+const cleanDatabase = false; // reseta o banco
+sequelize.sync({ force: cleanDatabase })
     .then(() => {
         server.listen(port);
         server.on('error', onError);

@@ -1,119 +1,109 @@
-var express = require("express");
-var todos = express.Router();
-
-var todoIndex = 6;
-var todosList = [
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 0,
-        "completed": false
-    },
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 1,
-        "completed": false
-    },
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 2,
-        "completed": false
-    },
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 3,
-        "completed": false
-    },
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 4,
-        "completed": false
-    },
-    {
-        "title": "Tarefas de teste",
-        "description": "Descrição da tarefa",
-        "id": 5,
-        "completed": false
-    }
-];
+const express = require("express");
+const todos = express.Router();
+const models = require('../models');
+const Todo = models.Todo;
 
 todos.get('/', function (req, res, next) {
-    // retorna todas as Todos cadastradas
-    res.status(200).json(todosList);
+    const busca = req.query.busca;
+
+    let filtro;
+    if (busca) {
+        filtro = {
+            where: {
+                $or: [{
+                    title: {
+                        $like: '%' + busca + '%'
+                    }
+                }, {
+                    description: {
+                        $like: '%' + busca + '%'
+                    }
+                }]
+            },
+            order: ['title']
+        }
+    }
+    Todo.findAll(filtro)
+        .then(todos => {
+            res.status(200).json(todos);
+        }).catch(ex => {
+            console.error(ex);
+            res.status(400).send('Não foi possível consultar as tarefas.');
+        })
 });
 
 todos.get('/:todoId', function (req, res, next) {
-    // busca a Todo pelo ID
-    var todo = findTodoById(req.params.todoId);
-
-    if (todo) {
-        // retorna a Todo encontrada
-        res.status(200).json(todo);
-    } else {
-        res.status(404).send();
-    }
+    const todoId = req.params.todoId;
+    Todo.findById(todoId)
+        .then(todo => {
+            if (todo) {
+                res.status(200).json(todo);
+            } else {
+                res.status(404).send('Tarefa não encontrada.');
+            }
+        }).catch(ex => {
+            console.error(ex);
+            res.status(400).send('Não foi possível consultar a tarefa.');
+        })
 });
 
 todos.post('/', function (req, res, next) {
+    const todo = {
+        title: req.body.title,
+        description: req.body.description,
+        creation_date: new Date(),
+        completed: false,
+    };
 
-    // recebe os dados da Todo
-    var todo = req.body;
-    todo.id = todoIndex++;
-    todo.completed = false;
-
-    // insere a Todo no "banco de dados".
-    todosList.push(todo);
-
-    res.status(201).send();
+    Todo.create(todo)
+        .then((_todo) => {
+            res.status(201).json(_todo);
+        }).catch(ex => {
+            console.error(ex);
+            res.status(400).send('Não foi possível incluir a tarefa ' +
+                'no banco de dados.');
+        });
 });
 
 todos.put('/:todoId', function (req, res, next) {
-
-    // busca a Todo pelo ID
-    var todo = findTodoById(req.params.todoId);
-
-    if (todo) {
-        // altera os atributos Todo
-        todo.title = req.body.title;
-        todo.description = req.body.description;
-        todo.completed = req.body.completed;
-
-        res.status(200).json(todo);
-    } else {
-        res.status(404).send();
-    }
-
+    const todoId = req.params.todoId;
+    const todo = {
+        title: req.body.title,
+        description: req.body.description,
+    };
+    Todo.update(todo, {
+        where: {
+            id: todoId,
+        }
+    }).then((result) => {
+        const registrosAfetados = result[0];
+        if (registrosAfetados) {
+            return Todo.findById(todoId);
+        } else {
+            res.status(404).send('Tarefa não encontrada.');
+        }
+    }).then(_todo => {
+        if (_todo) {
+            res.status(200).json(_todo);
+        }
+    }).catch(ex => {
+        console.error(ex);
+        res.status(400).send('Não foi possível atualizar a tarefa');
+    });
 });
 
 todos.delete('/:todoId', function (req, res, next) {
-
-    // busca o índice da Todo no "banco de dados".
-    var index = todosList.findIndex(function (todo, index) {
-        return todo.id === parseInt(req.params.todoId);
+    const todoId = req.params.todoId;
+    Todo.destroy({
+        where: {
+            id: todoId
+        }
+    }).then(() => {
+        res.status(204).send();
+    }).catch(ex => {
+        console.error(ex);
+        res.status(400).send('Não foi possível excluir a tarefa.');
     });
-
-    if (index >= 0) {
-        // remove a Todo do "banco de dados".
-        todosList.splice(index, 1);
-
-        res.status(200).send();
-    } else {
-        res.status(404).send();
-    }
 });
-
-function findTodoById(todoId) {
-    var todosFiltered =
-        todosList.filter(function (todo, index) {
-            return todo.id === parseInt(todoId);
-        });
-    if (todosFiltered.length > 0)
-        return todosFiltered[0];
-    return null;
-}
 
 module.exports = todos;
