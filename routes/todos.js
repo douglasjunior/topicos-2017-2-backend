@@ -106,4 +106,33 @@ todos.delete('/:todoId', function (req, res, next) {
     });
 });
 
+todos.put('/:todoId/completed', (req, res) => {
+    const todoId = req.params.todoId;
+    completeTodo(todoId, true, res);
+});
+
+todos.delete('/:todoId/completed', (req, res) => {
+    const todoId = req.params.todoId;
+    completeTodo(todoId, false, res);
+});
+
+const completeTodo = (todoId, completed, res) => {
+    const todo = { completed: completed };
+    Todo.update(todo, {
+        where: {
+            id: todoId
+        }
+    }).then(result => {
+        const registrosAfetados = result[0];
+        if (registrosAfetados > 0) {
+            res.status(204).send();
+        } else {
+            res.status(404).send();
+        }
+    }).catch(ex => {
+        console.error(ex);
+        res.status(400).send();
+    });
+}
+
 module.exports = todos;
